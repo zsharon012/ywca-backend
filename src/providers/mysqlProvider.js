@@ -29,5 +29,28 @@ export default {
   async getAll() {
     const [rows] = await pool.execute(`SELECT username, email, firstname, lastname FROM users ORDER BY username ASC`);
     return rows;
+  },
+
+  async getRecipients() {
+    const [rows] = await pool.execute(`SELECT recipientid, CONCAT(recipientfirstname, ' ', recipientlastname) AS name, recipientemail AS email, recipientphonenumber AS phone FROM recipients ORDER BY recipientfirstname ASC`);
+    return rows;
+  },
+
+  async updateRecipient(recipientId, { name, email, phone }) {
+    const nameParts = name.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const sql = `
+      UPDATE recipients
+      SET recipientfirstname = ?, recipientlastname = ?, recipientemail = ?, recipientphonenumber = ?
+      WHERE recipientid = ?
+    `;
+
+    await pool.execute(sql, [firstName, lastName, email, phone, recipientId]);
+
+    // Return updated recipient
+    const [rows] = await pool.execute(`SELECT recipientid, CONCAT(recipientfirstname, ' ', recipientlastname) AS name, recipientemail AS email, recipientphonenumber AS phone FROM recipients WHERE recipientid = ?`, [recipientId]);
+    return rows[0] || null;
   }
 };

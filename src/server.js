@@ -59,6 +59,34 @@ app.get('/get-contacts', async (req, res) => {
   }
 });
 
+app.put('/update-contact/:recipientId', authMiddleware, async (req, res) => {
+  try {
+    const { recipientId } = req.params;
+    const { name, email, phone } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({
+        error: 'Name and email are required',
+      });
+    }
+
+    const updated = await userRepository.updateRecipient(recipientId, {
+      name,
+      email,
+      phone,
+    });
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Recipient not found' });
+    }
+
+    res.status(200).json({ data: updated });
+  } catch (error) {
+    console.error('Update contact error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('Error details:', {
