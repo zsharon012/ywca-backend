@@ -5,8 +5,8 @@ import express from 'express';
 
 import authRoutes from './routes/authRoutes.js';
 import authMiddleware from './middleware/authMiddleware.js';
-import userRepository from './repositories/userRepository.js';
-import { pgPool } from './config/database.js';
+import recipientRepository from './repositories/recipientRepository.js';
+// import { pgPool } from './config/database.js';
 
 dotenv.config();
 
@@ -50,7 +50,7 @@ app.get('/health', (req, res) => {
 app.get('/get-contacts', async (req, res) => {
   try {
     console.log('Fetching contacts...');
-    const contacts = await userRepository.getRecipients();
+    const contacts = await recipientRepository.getRecipients();
     console.log('Contacts fetched:', contacts.length);
     res.status(200).json({ data: contacts });
   } catch (error) {
@@ -70,7 +70,7 @@ app.put('/update-contact/:recipientId', authMiddleware, async (req, res) => {
       });
     }
 
-    const updated = await userRepository.updateRecipient(recipientId, {
+    const updated = await recipientRepository.updateRecipient(recipientId, {
       name,
       email,
       phone,
