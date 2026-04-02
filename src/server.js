@@ -2,10 +2,18 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 import authRoutes from './routes/authRoutes.js';
-import authMiddleware from './middleware/authMiddleware.js';
-import recipientRepository from './repositories/recipientRepository.js';
+import contactsRoutes from './routes/Contacts.js';
+import mailobjectRoutes from './routes/mailobjectRoutes.js';
+import schedulesendsRoutes from './routes/schedulesendsRoutes.js';
+import signupLinksRoutes from './routes/signupLinksRoutes.js';
+import templatesRoutes from './routes/templatesRoutes.js';
+// import authMiddleware from './middleware/authMiddleware.js';
+// import recipientRepository from './repositories/recipientRepository.js';
+import swaggerOptions from './config/swaggerConfig.js';
 // import { pgPool } from './config/database.js';
 
 dotenv.config();
@@ -41,51 +49,118 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/auth', authRoutes);
+// Swagger UI
+const specs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
+}));
 
+app.use('/auth', authRoutes);
+app.use('/contacts', contactsRoutes);
+app.use('/mailobjects', mailobjectRoutes);
+app.use('/scheduledsends', schedulesendsRoutes);
+app.use('/signuplinks', signupLinksRoutes);
+app.use('/templates', templatesRoutes);
+
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ */
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.get('/get-contacts', async (req, res) => {
-  try {
-    console.log('Fetching contacts...');
-    const contacts = await recipientRepository.getRecipients();
-    console.log('Contacts fetched:', contacts.length);
-    res.status(200).json({ data: contacts });
-  } catch (error) {
-    console.error('Get contacts error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// /**
+//  * @swagger
+//  * /get-contacts:
+//  *   get:
+//  *     summary: Get all contacts (legacy endpoint)
+//  *     tags: [Contacts]
+//  *     responses:
+//  *       200:
+//  *         description: List of all contacts
+//  *       500:
+//  *         description: Internal server error
+//  */
+// app.get('/get-contacts', async (req, res) => {
+//   try {
+//     console.log('Fetching contacts...');
+//     const contacts = await recipientRepository.getRecipients();
+//     console.log('Contacts fetched:', contacts.length);
+//     res.status(200).json({ data: contacts });
+//   } catch (error) {
+//     console.error('Get contacts error:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
-app.put('/update-contact/:recipientId', authMiddleware, async (req, res) => {
-  try {
-    const { recipientId } = req.params;
-    const { name, email, phone } = req.body;
+// /**
+//  * @swagger
+//  * /update-contact/{recipientId}:
+//  *   put:
+//  *     summary: Update a contact (legacy endpoint)
+//  *     tags: [Contacts]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     parameters:
+//  *       - name: recipientId
+//  *         in: path
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               name: { type: string }
+//  *               email: { type: string }
+//  *               phone: { type: string }
+//  *     responses:
+//  *       200:
+//  *         description: Contact updated successfully
+//  *       400:
+//  *         description: Name and email are required
+//  *       404:
+//  *         description: Recipient not found
+//  */
+// app.put('/update-contact/:recipientId', authMiddleware, async (req, res) => {
+//   try {
+//     const { recipientId } = req.params;
+//     const { name, email, phone } = req.body;
 
-    if (!name || !email) {
-      return res.status(400).json({
-        error: 'Name and email are required',
-      });
-    }
+//     if (!name || !email) {
+//       return res.status(400).json({
+//         error: 'Name and email are required',
+//       });
+//     }
 
-    const updated = await recipientRepository.updateRecipient(recipientId, {
-      name,
-      email,
-      phone,
-    });
+//     const updated = await recipientRepository.updateRecipient(recipientId, {
+//       name,
+//       email,
+//       phone,
+//     });
 
-    if (!updated) {
-      return res.status(404).json({ error: 'Recipient not found' });
-    }
+//     if (!updated) {
+//       return res.status(404).json({ error: 'Recipient not found' });
+//     }
 
-    res.status(200).json({ data: updated });
-  } catch (error) {
-    console.error('Update contact error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+//     res.status(200).json({ data: updated });
+//   } catch (error) {
+//     console.error('Update contact error:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
