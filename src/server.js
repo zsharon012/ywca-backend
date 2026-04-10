@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import authRoutes from './routes/authRoutes.js';
 import contactsRoutes from './routes/Contacts.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import mailobjectRoutes from './routes/mailobjectRoutes.js';
 import schedulesendsRoutes from './routes/schedulesendsRoutes.js';
 import signupLinksRoutes from './routes/signupLinksRoutes.js';
@@ -59,6 +60,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 
 app.use('/auth', authRoutes);
 app.use('/contacts', contactsRoutes);
+app.use('/dashboard', dashboardRoutes);
 app.use('/mailobjects', mailobjectRoutes);
 app.use('/scheduledsends', schedulesendsRoutes);
 app.use('/signuplinks', signupLinksRoutes);
