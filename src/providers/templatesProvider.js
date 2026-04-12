@@ -43,7 +43,7 @@ export default {
       VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW())
       RETURNING templateid, name, subject, body, customname, createdby, createdon, editedon
     `;
-
+    
     const { rows } = await pgPool.query(sql, [name, subject, body, customname, createdby]);
     return rows[0] || null;
   },
@@ -73,24 +73,5 @@ export default {
 
     const { rows } = await pgPool.query(sql, [templateid]);
     return rows[0] || null;
-  },
-
-  async getTemplatesByUser(userid) {
-    const sql = `
-      SELECT templateid,
-             name,
-             subject,
-             body,
-             customname,
-             createdby,
-             createdon,
-             editedon
-      FROM templates
-      WHERE createdby = $1
-      ORDER BY createdon DESC
-    `;
-
-    const { rows } = await pgPool.query(sql, [userid]);
-    return rows;
   }
 };

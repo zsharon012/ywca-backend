@@ -56,6 +56,20 @@ const swaggerOptions = {
             error: { type: 'string' },
           },
         },
+        SendMailRequest: {
+          type: 'object',
+          properties: {
+            templateid: { type: 'string' },
+            recipientids: {
+              type: 'array',
+              items: { type: 'string' },
+            },
+            contactgroupids: {
+              type: 'array',
+              items: { type: 'string' },
+            },
+          },
+        },
       },
     },
     security: [

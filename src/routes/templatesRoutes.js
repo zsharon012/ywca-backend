@@ -30,31 +30,7 @@ router.get('/', authMiddleware, templatesController.getAllTemplates);
  *       200:
  *         description: User's templates
  */
-router.get('/user/templates', authMiddleware, templatesController.getTemplatesByUser);
 
-/**
- * @swagger
- * /templates:
- *   post:
- *     summary: Create a new template
- *     tags: [Templates]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name: { type: string }
- *               subject: { type: string }
- *               body: { type: string }
- *               customname: { type: boolean }
- *     responses:
- *       201:
- *         description: Template created
- */
 router.post('/', authMiddleware, templatesController.createTemplate);
 
 /**

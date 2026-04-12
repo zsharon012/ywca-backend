@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
@@ -11,12 +11,11 @@ import mailobjectRoutes from './routes/mailobjectRoutes.js';
 import schedulesendsRoutes from './routes/schedulesendsRoutes.js';
 import signupLinksRoutes from './routes/signupLinksRoutes.js';
 import templatesRoutes from './routes/templatesRoutes.js';
+import sendmailRoutes from './routes/sendmailRoutes.js';
 // import authMiddleware from './middleware/authMiddleware.js';
 // import recipientRepository from './repositories/recipientRepository.js';
 import swaggerOptions from './config/swaggerConfig.js';
 // import { pgPool } from './config/database.js';
-
-dotenv.config();
 
 const app = express();
 
@@ -61,6 +60,7 @@ app.use('/auth', authRoutes);
 app.use('/contacts', contactsRoutes);
 app.use('/mailobjects', mailobjectRoutes);
 app.use('/scheduledsends', schedulesendsRoutes);
+app.use('/sendmail', sendmailRoutes);
 app.use('/signuplinks', signupLinksRoutes);
 app.use('/templates', templatesRoutes);
 
