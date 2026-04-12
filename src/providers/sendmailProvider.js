@@ -72,11 +72,13 @@ async function sendMail(templateid, recipientids = [], contactgroupids = []) {
       try {
         const to = r.recipientemail;
         const recipientFirstName = (r && r.recipientfirstname) || '';
+        const recipientLastName = (r && r.recipientlastname) || '';
 
         const personalizedHtml = template && template.body
-          ? template.body.replace(/\{\{\s*first_name\s*\}\}/gi, recipientFirstName)
-          : '';
-
+  ? template.body
+      .replace(/\{\{\s*first_name\s*\}\}/gi, recipientFirstName)
+      .replace(/\{\{\s*last_name\s*\}\}/gi, recipientLastName)
+  : '';
         const textFallback = (personalizedHtml || '').replace(/<[^>]+>/g, '') || '';
 
         const fromAddress = (process.env.SMTP_FROM || 'ywca.disc@gmail.com').trim();
