@@ -12,6 +12,7 @@ import schedulesendsRoutes from './routes/schedulesendsRoutes.js';
 import signupLinksRoutes from './routes/signupLinksRoutes.js';
 import templatesRoutes from './routes/templatesRoutes.js';
 import sendmailRoutes from './routes/sendmailRoutes.js';
+import uploadsRoutes from './routes/uploadsRoutes.js';
 // import authMiddleware from './middleware/authMiddleware.js';
 // import recipientRepository from './repositories/recipientRepository.js';
 import swaggerOptions from './config/swaggerConfig.js';
@@ -63,6 +64,7 @@ app.use('/scheduledsends', schedulesendsRoutes);
 app.use('/sendmail', sendmailRoutes);
 app.use('/signuplinks', signupLinksRoutes);
 app.use('/templates', templatesRoutes);
+app.use('/uploads', uploadsRoutes);
 
 /**
  * @swagger

@@ -89,8 +89,20 @@ CREATE TABLE users (
 --         FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
 -- );
 
--- -- Image Bucket Table
--- CREATE TABLE imagebucket (
---     imageid UUID PRIMARY KEY,
---     imageurl TEXT NOT NULL
--- );
+-- Image Bucket Table (S3-backed uploads for images and PDFs)
+CREATE TABLE IF NOT EXISTS imagebucket (
+    imageid      UUID PRIMARY KEY,
+    imageurl     TEXT NOT NULL,
+    s3key        TEXT,
+    mimetype     TEXT,
+    size_bytes   BIGINT,
+    uploaded_by  INTEGER REFERENCES public.users(id) ON DELETE SET NULL,
+    uploaded_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Safe additive migration for installs that already have the minimal 2-column version.
+ALTER TABLE imagebucket ADD COLUMN IF NOT EXISTS s3key TEXT;
+ALTER TABLE imagebucket ADD COLUMN IF NOT EXISTS mimetype TEXT;
+ALTER TABLE imagebucket ADD COLUMN IF NOT EXISTS size_bytes BIGINT;
+ALTER TABLE imagebucket ADD COLUMN IF NOT EXISTS uploaded_by INTEGER;
+ALTER TABLE imagebucket ADD COLUMN IF NOT EXISTS uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
