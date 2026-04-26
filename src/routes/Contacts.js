@@ -139,4 +139,38 @@ router.put('/members/:recipientId', authMiddleware, contactsController.updateCon
  */
 router.delete('/lists/:contactGroupId/members/:recipientId', authMiddleware, contactsController.deleteFromContactList);
 
+/**
+ * @swagger
+ * /contacts/bulk:
+ *   post:
+ *     summary: Bulk insert recipients from CSV, clears previous recipients
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               contacts:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name: { type: string }
+ *                     email: { type: string }
+ *                     phone: { type: string }
+ *                 description: Array of contact objects with name, email, and phone
+ *     responses:
+ *       201:
+ *         description: Contacts bulk uploaded successfully
+ *       400:
+ *         description: No contacts provided or invalid format
+ *       500:
+ *         description: Failed to insert contacts
+ */
+router.post('/bulk', authMiddleware, contactsController.bulkInsertRecipients);
+
 export default router;
