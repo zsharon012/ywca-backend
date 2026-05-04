@@ -16,6 +16,7 @@ import sendmailRoutes from './routes/sendmailRoutes.js';
 // import recipientRepository from './repositories/recipientRepository.js';
 import swaggerOptions from './config/swaggerConfig.js';
 // import { pgPool } from './config/database.js';
+import uploadRoutes from './routes/imagebucketRoutes.js';
 
 const app = express();
 
@@ -191,3 +192,5 @@ app.listen(PORT, () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Frontend URL: ${process.env.FRONTEND_URL}`);
 });
+
+app.use('/images', uploadRoutes);
