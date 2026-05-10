@@ -278,6 +278,26 @@ const contactsController = {
       console.error('Delete from contact list error:', error);
       res.status(500).json({ error: 'Failed to remove member from contact list' });
     }
+  },
+
+  async bulkInsertRecipients(req, res) {
+    try {
+      const { contacts } = req.body;
+
+      if (!Array.isArray(contacts) || contacts.length === 0) {
+        return res.status(400).json({ error: 'No contacts provided' });
+      }
+
+      const result = await recipientProvider.bulkInsertRecipients(contacts);
+
+      res.status(201).json({
+        message: 'Contacts bulk uploaded successfully',
+        ...result
+      });
+    } catch (error) {
+      console.error('Bulk insert recipients error:', error);
+      res.status(500).json({ error: 'Failed to insert contacts' });
+    }
   }
 };
 

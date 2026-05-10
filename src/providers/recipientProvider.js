@@ -1,4 +1,5 @@
 import { pgPool } from '../config/database.js';
+import { v4 as uuidv4 } from 'uuid'; // add this import
 
 export default {
   async getRecipients() {
@@ -92,4 +93,43 @@ export default {
     const { rows } = await pgPool.query(sql);
     return rows;
   }
+  async bulkInsertRecipients(contacts) {
+    if (!Array.isArray(contacts) || contacts.length === 0) {
+      throw new Error('No contacts provided');
+    }
+
+    // clear existing recipients first
+    await pgPool.query('DELETE FROM recipients');
+
+    let insertedCount = 0;
+
+    for (const contact of contacts) {
+      const { name, email, phone } = contact;
+      const nameParts = name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      const sql = `
+        INSERT INTO recipients (recipientid, recipientfirstname, recipientlastname, recipientemail, recipientphonenumber)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING recipientid
+      `;
+
+      try {
+        const { rows } = await pgPool.query(sql, [uuidv4(), firstName, lastName, email, phone]);
+        if (rows.length > 0) {
+          insertedCount++;
+        }
+      } catch (error) {
+        console.error(`Error inserting contact ${email}:`, error);
+        throw error;
+      }
+    }
+
+    return {
+      total: contacts.length,
+      inserted: insertedCount,
+      skipped: contacts.length - insertedCount,
+    };
+  },
 };
