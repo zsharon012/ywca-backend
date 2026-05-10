@@ -20,6 +20,45 @@ router.get('/recipients', authMiddleware, contactsController.getAllRecipients);
 
 /**
  * @swagger
+ * /contacts/recipients-with-groups:
+ *   get:
+ *     summary: Get all recipients with their group assignments
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of recipients with group information
+ */
+router.get('/recipients-with-groups', authMiddleware, contactsController.getRecipientsWithGroups);
+
+/**
+ * @swagger
+ * /contacts/recipients:
+ *   post:
+ *     summary: Create a new recipient
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName: { type: string }
+ *               lastName: { type: string }
+ *               email: { type: string }
+ *               phone: { type: string }
+ *     responses:
+ *       201:
+ *         description: Recipient created successfully
+ */
+router.post('/recipients', authMiddleware, contactsController.createRecipient);
+
+/**
+ * @swagger
  * /contacts/recipients/{recipientId}:
  *   get:
  *     summary: Get a specific recipient
@@ -39,6 +78,87 @@ router.get('/recipients', authMiddleware, contactsController.getAllRecipients);
  *         description: Recipient not found
  */
 router.get('/recipients/:recipientId', authMiddleware, contactsController.getRecipientById);
+
+/**
+ * @swagger
+ * /contacts/recipients/{recipientId}:
+ *   delete:
+ *     summary: Delete a recipient
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: recipientId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipient deleted successfully
+ *       404:
+ *         description: Recipient not found
+ */
+router.delete('/recipients/:recipientId', authMiddleware, contactsController.deleteRecipient);
+
+/**
+ * @swagger
+ * /contacts/lists:
+ *   get:
+ *     summary: Get all contact lists
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all contact lists
+ */
+router.get('/lists', authMiddleware, contactsController.getAllContactLists);
+
+/**
+ * @swagger
+ * /contacts/lists:
+ *   post:
+ *     summary: Create a new contact list
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               description: { type: string }
+ *     responses:
+ *       201:
+ *         description: Contact list created successfully
+ */
+router.post('/lists', authMiddleware, contactsController.createContactList);
+
+/**
+ * @swagger
+ * /contacts/lists/{contactListId}:
+ *   delete:
+ *     summary: Delete a contact list
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: contactListId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact list deleted successfully
+ *       404:
+ *         description: Contact list not found
+ */
+router.delete('/lists/:contactListId', authMiddleware, contactsController.deleteContactList);
 
 /**
  * @swagger
