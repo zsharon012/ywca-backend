@@ -1,6 +1,5 @@
 import contactlistProviders from '../providers/contactlistProviders.js';
 import recipientProvider from '../providers/recipientProvider.js';
-import userRepository from '../repositories/userRepository.js';
 
 const contactsController = {
   async getAllRecipients(req, res) {
@@ -117,15 +116,7 @@ const contactsController = {
 
   async getAllContactLists(req, res) {
     try {
-      const firebaseUid = req.user.uid; // Firebase UID from auth middleware
-
-      // Get user from database by Firebase UID
-      const user = await userRepository.findByUid(firebaseUid);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      const lists = await contactlistProviders.getAllContactLists(user.id);
+      const lists = await contactlistProviders.getAllContactLists();
       res.status(200).json(lists);
     } catch (error) {
       console.error('Get all contact lists error:', error);
@@ -136,21 +127,13 @@ const contactsController = {
   async createContactList(req, res) {
     try {
       const { name, description } = req.body;
-      const firebaseUid = req.user.uid; // Firebase UID from auth middleware
-
-      // Get user from database by Firebase UID
-      const user = await userRepository.findByUid(firebaseUid);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
       if (!name) {
         return res.status(400).json({
           error: 'Contact list name is required'
         });
       }
 
-      const list = await contactlistProviders.createContactList(user.id, name, description || null);
+      const list = await contactlistProviders.createContactList(name, description || null);
 
       res.status(201).json({
         message: 'Contact list created successfully',

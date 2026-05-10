@@ -1,11 +1,9 @@
 import { pgPool } from '../config/database.js';
-import { v4 as uuidv4 } from 'uuid'; // add this import
 
 export default {
   async getRecipients() {
     const { rows } = await pgPool.query(`
       SELECT
-             recipientid,
              recipientfirstname || ' ' || recipientlastname AS name,
              recipientemail AS email,
              recipientphonenumber AS phone
@@ -92,7 +90,8 @@ export default {
     
     const { rows } = await pgPool.query(sql);
     return rows;
-  }
+  },
+
   async bulkInsertRecipients(contacts) {
     if (!Array.isArray(contacts) || contacts.length === 0) {
       throw new Error('No contacts provided');
