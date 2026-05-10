@@ -1,4 +1,5 @@
 import admin from '../config/firebase.js';
+import userRepository from '../repositories/userRepository.js';
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -13,6 +14,15 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const decodedToken = await admin.auth().verifyIdToken(token);
+
+    // Ensure user exists in database (upsert will create if not exists)
+    await userRepository.upsertUser({
+      uid: decodedToken.uid,
+      username: decodedToken.email?.split('@')[0] || decodedToken.uid.substring(0, 20),
+      email: decodedToken.email || '',
+      firstname: decodedToken.name?.split(' ')[0] || '',
+      lastname: decodedToken.name?.split(' ').slice(1).join(' ') || '',
+    });
 
     req.user = decodedToken;
     next();

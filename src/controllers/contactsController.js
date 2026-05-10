@@ -1,5 +1,6 @@
 import contactlistProviders from '../providers/contactlistProviders.js';
 import recipientProvider from '../providers/recipientProvider.js';
+import userRepository from '../repositories/userRepository.js';
 
 const contactsController = {
   async getAllRecipients(req, res) {
@@ -34,6 +35,68 @@ const contactsController = {
       res.status(500).json({ error: 'Failed to retrieve recipient' });
     }
   },
+
+  async getRecipientsWithGroups(req, res) {
+    try {
+      const recipients = await recipientProvider.getRecipientsWithGroups();
+      res.status(200).json(recipients);
+    } catch (error) {
+      console.error('Get recipients with groups error:', error);
+      res.status(500).json({ error: 'Failed to retrieve recipients with groups' });
+    }
+  },
+
+  async createRecipient(req, res) {
+    try {
+      const { firstName, lastName, email, phone } = req.body;
+
+      if (!firstName || !email) {
+        return res.status(400).json({
+          error: 'firstName and email are required'
+        });
+      }
+
+      const recipient = await recipientProvider.createRecipient(firstName, lastName || '', email, phone || null);
+
+      res.status(201).json({
+        message: 'Recipient created successfully',
+        data: recipient
+      });
+    } catch (error) {
+      console.error('Create recipient error:', error);
+      if (error.code === '23505') {
+        return res.status(400).json({ error: 'Recipient with this email already exists' });
+      }
+      res.status(500).json({ error: 'Failed to create recipient' });
+    }
+  },
+
+  async deleteRecipient(req, res) {
+    try {
+      const { recipientId } = req.params;
+
+      if (!recipientId) {
+        return res.status(400).json({
+          error: 'recipientId is required'
+        });
+      }
+
+      const result = await recipientProvider.deleteRecipient(recipientId);
+
+      if (!result) {
+        return res.status(404).json({ error: 'Recipient not found' });
+      }
+
+      res.status(200).json({
+        message: 'Recipient deleted successfully',
+        data: result
+      });
+    } catch (error) {
+      console.error('Delete recipient error:', error);
+      res.status(500).json({ error: 'Failed to delete recipient' });
+    }
+  },
+
   async getContactListMembers(req, res) {
     try {
       const { listname } = req.params;
@@ -49,6 +112,82 @@ const contactsController = {
     } catch (error) {
       console.error('Get contact list members error:', error);
       res.status(500).json({ error: 'Failed to retrieve contact list members' });
+    }
+  },
+
+  async getAllContactLists(req, res) {
+    try {
+      const firebaseUid = req.user.uid; // Firebase UID from auth middleware
+
+      // Get user from database by Firebase UID
+      const user = await userRepository.findByUid(firebaseUid);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const lists = await contactlistProviders.getAllContactLists(user.id);
+      res.status(200).json(lists);
+    } catch (error) {
+      console.error('Get all contact lists error:', error);
+      res.status(500).json({ error: 'Failed to retrieve contact lists' });
+    }
+  },
+
+  async createContactList(req, res) {
+    try {
+      const { name, description } = req.body;
+      const firebaseUid = req.user.uid; // Firebase UID from auth middleware
+
+      // Get user from database by Firebase UID
+      const user = await userRepository.findByUid(firebaseUid);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      if (!name) {
+        return res.status(400).json({
+          error: 'Contact list name is required'
+        });
+      }
+
+      const list = await contactlistProviders.createContactList(user.id, name, description || null);
+
+      res.status(201).json({
+        message: 'Contact list created successfully',
+        data: list
+      });
+    } catch (error) {
+      console.error('Create contact list error:', error);
+      if (error.code === '23505') {
+        return res.status(400).json({ error: 'Contact list with this name already exists' });
+      }
+      res.status(500).json({ error: 'Failed to create contact list' });
+    }
+  },
+
+  async deleteContactList(req, res) {
+    try {
+      const { contactListId } = req.params;
+
+      if (!contactListId) {
+        return res.status(400).json({
+          error: 'contactListId is required'
+        });
+      }
+
+      const result = await contactlistProviders.deleteContactList(contactListId);
+
+      if (!result) {
+        return res.status(404).json({ error: 'Contact list not found' });
+      }
+
+      res.status(200).json({
+        message: 'Contact list deleted successfully',
+        data: result
+      });
+    } catch (error) {
+      console.error('Delete contact list error:', error);
+      res.status(500).json({ error: 'Failed to delete contact list' });
     }
   },
 
@@ -143,3 +282,4 @@ const contactsController = {
 };
 
 export default contactsController;
+
