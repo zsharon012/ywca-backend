@@ -59,35 +59,32 @@ export default {
     return rows[0] || null;
   },
 
-  async getAllContactLists(userId) {
-    const sql = `
-      SELECT contactgroupid AS id,
-             name,
-             description,
-             created_at,
-             updated_at,
-             (SELECT COUNT(*) FROM contactlists_users WHERE contactgroupid = contactlists.contactgroupid) AS memberCount
-      FROM contactlists
-      WHERE user_id = $1
-      ORDER BY name ASC
-    `;
-    
-    const { rows } = await pgPool.query(sql, [userId]);
-    return rows;
-  },
+  async getAllContactLists() {
+  const sql = `
+    SELECT contactgroupid AS id,
+           name,
+           description,
+           created_at,
+           updated_at,
+           (SELECT COUNT(*) FROM contactlists_users WHERE contactgroupid = contactlists.contactgroupid) AS memberCount
+    FROM contactlists
+    ORDER BY name ASC
+  `;
+  const { rows } = await pgPool.query(sql);
+  return rows;
+},
 
-  async createContactList(userId, name, description = null) {
+  async createContactList(name, description = null) {
     const sql = `
-      INSERT INTO contactlists (user_id, name, description, created_at, updated_at)
-      VALUES ($1, $2, $3, NOW(), NOW())
+      INSERT INTO contactlists (name, description, created_at, updated_at)
+      VALUES ($1, $2, NOW(), NOW())
       RETURNING contactgroupid AS id,
                 name,
                 description,
                 created_at,
                 updated_at
     `;
-    
-    const { rows } = await pgPool.query(sql, [userId, name, description]);
+    const { rows } = await pgPool.query(sql, [name, description]);
     return rows[0] || null;
   },
 
