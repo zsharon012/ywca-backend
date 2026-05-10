@@ -92,7 +92,8 @@ export default {
     
     const { rows } = await pgPool.query(sql);
     return rows;
-  }
+  },
+  
   async bulkInsertRecipients(contacts) {
     if (!Array.isArray(contacts) || contacts.length === 0) {
       throw new Error('No contacts provided');
