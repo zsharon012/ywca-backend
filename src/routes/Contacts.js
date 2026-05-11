@@ -162,6 +162,35 @@ router.delete('/lists/:contactListId', authMiddleware, contactsController.delete
 
 /**
  * @swagger
+ * /contacts/lists/{contactListId}:
+ *   put:
+ *     summary: Update a contact list
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: contactListId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               description: { type: string }
+ *     responses:
+ *       200:
+ *         description: Contact list updated successfully
+ */
+router.put('/lists/:contactListId', authMiddleware, contactsController.updateContactList);
+
+/**
+ * @swagger
  * /contacts/lists/{listname}:
  *   get:
  *     summary: Get all members in a contact list

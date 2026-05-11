@@ -88,6 +88,24 @@ export default {
     return rows[0] || null;
   },
 
+  async updateContactList(contactListId, name, description = null) {
+    const sql = `
+      UPDATE contactlists
+      SET name = $2,
+          description = $3,
+          updated_at = NOW()
+      WHERE contactgroupid = $1
+      RETURNING contactgroupid AS id,
+                name,
+                description,
+                created_at,
+                updated_at
+    `;
+
+    const { rows } = await pgPool.query(sql, [contactListId, name, description]);
+    return rows[0] || null;
+  },
+
   async deleteContactList(contactListId) {
     const sql = `
       DELETE FROM contactlists

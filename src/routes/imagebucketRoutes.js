@@ -1,4 +1,5 @@
 import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
 import imageRepo from "../repositories/imagebucketRepository.js";
 
 const router = express.Router();
@@ -44,7 +45,7 @@ router.get("/", async (req, res) => {
 /**
  * Delete image
  */
-router.delete("/", async (req, res) => {
+router.delete("/", authMiddleware, async (req, res) => {
   try {
     const { key } = req.body;
 

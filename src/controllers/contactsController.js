@@ -174,6 +174,42 @@ const contactsController = {
     }
   },
 
+  async updateContactList(req, res) {
+    try {
+      const { contactListId } = req.params;
+      const { name, description } = req.body;
+
+      if (!contactListId) {
+        return res.status(400).json({
+          error: 'contactListId is required'
+        });
+      }
+
+      if (!name) {
+        return res.status(400).json({
+          error: 'Contact list name is required'
+        });
+      }
+
+      const updatedList = await contactlistProviders.updateContactList(contactListId, name, description || null);
+
+      if (!updatedList) {
+        return res.status(404).json({ error: 'Contact list not found' });
+      }
+
+      res.status(200).json({
+        message: 'Contact list updated successfully',
+        data: updatedList
+      });
+    } catch (error) {
+      console.error('Update contact list error:', error);
+      if (error.code === '23505') {
+        return res.status(400).json({ error: 'Contact list with this name already exists' });
+      }
+      res.status(500).json({ error: 'Failed to update contact list' });
+    }
+  },
+
   async addToContactList(req, res) {
     try {
       const { recipientId, contactlistID } = req.body;
