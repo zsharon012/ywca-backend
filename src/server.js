@@ -12,6 +12,7 @@ import schedulesendsRoutes from './routes/schedulesendsRoutes.js';
 import signupLinksRoutes from './routes/signupLinksRoutes.js';
 import templatesRoutes from './routes/templatesRoutes.js';
 import sendmailRoutes from './routes/sendmailRoutes.js';
+import { processScheduledSends } from './scripts/processScheduledSends.js';
 // import authMiddleware from './middleware/authMiddleware.js';
 // import recipientRepository from './repositories/recipientRepository.js';
 import swaggerOptions from './config/swaggerConfig.js';
@@ -191,6 +192,27 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Frontend URL: ${process.env.FRONTEND_URL}`);
+
+  const intervalMs = Number(process.env.SCHEDULED_SEND_INTERVAL_MS) || 60000;
+  let processorRunning = false;
+
+  const runScheduler = async () => {
+    if (processorRunning) {
+      return;
+    }
+
+    processorRunning = true;
+    try {
+      await processScheduledSends();
+    } catch (err) {
+      console.error('Scheduled send processor error:', err);
+    } finally {
+      processorRunning = false;
+    }
+  };
+
+  runScheduler();
+  setInterval(runScheduler, intervalMs);
 });
 
 app.use('/images', uploadRoutes);
