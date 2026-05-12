@@ -76,8 +76,9 @@ async function sendMail(templateid, recipientids = [], contactgroupids = []) {
 
         const personalizedHtml = template && template.body
   ? template.body
-      .replace(/\{\{\s*first_name\s*\}\}/gi, recipientFirstName)
-      .replace(/\{\{\s*last_name\s*\}\}/gi, recipientLastName)
+      .replace(`<span label="first_name" data-variable="first_name" style="background: rgb(238, 242, 255); color: rgb(55, 48, 163); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 500;">{{first_name}}</span>`, recipientFirstName)
+      .replace(`<span label="last_name" data-variable="last_name" style="background: rgb(238, 242, 255); color: rgb(55, 48, 163); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 500;">{{last_name}}</span></p>`, recipientLastName)
+      
   : '';
         const textFallback = (personalizedHtml || '').replace(/<[^>]+>/g, '') || '';
 
