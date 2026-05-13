@@ -1,0 +1,79 @@
+service: ywca-backend
+
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1        # change to your preferred region
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 29              # API Gateway max is 30s; keep Lambda under it
+
+  # Environment variables — pulled from SSM Parameter Store at deploy time
+  # Store these first with: aws ssm put-parameter --name "/ywca/dev/DB_HOST" --value "..." --type SecureString
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    DB_HOST: ${ssm:/ywca/${self:provider.stage}/DB_HOST}
+    DB_PORT: ${ssm:/ywca/${self:provider.stage}/DB_PORT}
+    DB_NAME: ${ssm:/ywca/${self:provider.stage}/DB_NAME}
+    DB_USER: ${ssm:/ywca/${self:provider.stage}/DB_USER}
+    DB_PASSWORD: ${ssm:/ywca/${self:provider.stage}/DB_PASSWORD}
+    DATABASE_URL: ${ssm:/ywca/${self:provider.stage}/DATABASE_URL}
+    FIREBASE_SERVICE_ACCOUNT_KEY: ${ssm:/ywca/${self:provider.stage}/FIREBASE_SERVICE_ACCOUNT_KEY}
+    FRONTEND_URL: ${ssm:/ywca/${self:provider.stage}/FRONTEND_URL}
+    FRONTEND_URL_DEV: ${ssm:/ywca/${self:provider.stage}/FRONTEND_URL_DEV}
+    API_URL: ${ssm:/ywca/${self:provider.stage}/API_URL}
+    AWS_BUCKET_ACCESS_KEY: ${ssm:/ywca/${self:provider.stage}/AWS_BUCKET_ACCESS_KEY}
+    APP_AWS_REGION: ${ssm:/ywca/${self:provider.stage}/AWS_REGION}
+    APP_AWS_SECRET_KEY: ${ssm:/ywca/${self:provider.stage}/AWS_SECRET_KEY}
+    AWS_S3_BUCKET: ${ssm:/ywca/${self:provider.stage}/AWS_S3_BUCKET}
+    SMTP_USER: ${ssm:/ywca/${self:provider.stage}/SMTP_USER}
+    SMTP_PASS: ${ssm:/ywca/${self:provider.stage}/SMTP_PASS}
+    SMTP_FROM: ${ssm:/ywca/${self:provider.stage}/SMTP_FROM}
+    DB_TYPE: ${ssm:/ywca/${self:provider.stage}/DB_TYPE}
+
+
+  # IAM permissions for the Lambda role
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - ssm:GetParameters
+          Resource:
+            - arn:aws:ssm:${self:provider.region}:*:parameter/ywca/${self:provider.stage}/*
+
+functions:
+  api:
+    handler: src/lambda.handler
+    events:
+      # Catch-all routes via API Gateway HTTP API (v2)
+      - httpApi:
+          path: /
+          method: ANY
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+
+# Exclude files that don't belong in the Lambda package
+package:
+  patterns:
+    - "!.env"
+    - "!.git/**"
+    - "!.vscode/**"
+    - "!*.md"
+    - "!rds-config.ini.example"
+    - "!image.png"
+    - "!sql/**"              # migrations shouldn't run inside Lambda
+    - "!.prettierrc"
+    - "!eslint.config.js"
+    - "!jsconfig.json"
+
+plugins:
+  - serverless-offline       # for local testing: npx serverless offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
