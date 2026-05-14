@@ -76,10 +76,10 @@ async function sendMail(templateid, recipientids = [], contactgroupids = []) {
 
         const personalizedHtml = template && template.body
   ? template.body
-      .replace(`<span label="first_name" data-variable="first_name" style="background: rgb(238, 242, 255); color: rgb(55, 48, 163); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 500;">{{first_name}}</span>`, recipientFirstName)
-      .replace(`<span label="last_name" data-variable="last_name" style="background: rgb(238, 242, 255); color: rgb(55, 48, 163); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 500;">{{last_name}}</span></p>`, recipientLastName)
-      
+      .replaceAll(`<span label="first_name" data-variable="first_name" style="background: rgb(238, 242, 255); color: rgb(55, 48, 163); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 500;">{{first_name}}</span>`, recipientFirstName)
+      .replaceAll(`<span label="last_name" data-variable="last_name" style="background: rgb(238, 242, 255); color: rgb(55, 48, 163); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 500;">{{last_name}}</span>`, recipientLastName)
   : '';
+  console.log(template.body)
         const textFallback = (personalizedHtml || '').replace(/<[^>]+>/g, '') || '';
 
         const fromAddress = (process.env.SMTP_FROM || 'ywca.disc@gmail.com').trim();
