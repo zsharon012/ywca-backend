@@ -77,6 +77,7 @@ app.use('/scheduledsends', schedulesendsRoutes);
 app.use('/sendmail', sendmailRoutes);
 app.use('/signuplinks', signupLinksRoutes);
 app.use('/templates', templatesRoutes);
+app.use('/images', uploadRoutes);
 
 /**
  * @swagger
@@ -209,31 +210,35 @@ const PORT = process.env.PORT || 5050;
 
 export default app;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Frontend URL: ${process.env.FRONTEND_URL}`);
+const isLambda = Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME);
 
-  const intervalMs = Number(process.env.SCHEDULED_SEND_INTERVAL_MS) || 60000;
-  let processorRunning = false;
+if (!isLambda) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Frontend URL: ${process.env.FRONTEND_URL}`);
 
-  const runScheduler = async () => {
-    if (processorRunning) {
-      return;
-    }
+    const intervalMs = Number(process.env.SCHEDULED_SEND_INTERVAL_MS) || 60000;
+    let processorRunning = false;
 
-    processorRunning = true;
-    try {
-      await processScheduledSends();
-    } catch (err) {
-      console.error('Scheduled send processor error:', err);
-    } finally {
-      processorRunning = false;
-    }
-  };
+    const runScheduler = async () => {
+      if (processorRunning) {
+        return;
+      }
 
-  runScheduler();
-  setInterval(runScheduler, intervalMs);
-});
+      processorRunning = true;
+      try {
+        await processScheduledSends();
+      } catch (err) {
+        console.error('Scheduled send processor error:', err);
+      } finally {
+        processorRunning = false;
+      }
+    };
+
+    runScheduler();
+    setInterval(runScheduler, intervalMs);
+  });
+}
 
 app.use('/images', uploadRoutes);
