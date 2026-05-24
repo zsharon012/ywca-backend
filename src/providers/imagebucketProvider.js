@@ -9,14 +9,25 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // AWS_S3_BUCKET = "bucket-name/folder"
-const [BUCKET, ...PREFIX_PARTS] = process.env.AWS_S3_BUCKET.split("/");
+const bucketEnv = process.env.AWS_S3_BUCKET;
+const accessKeyId = process.env.AWS_BUCKET_ACCESS_KEY;
+const secretAccessKey = process.env.APP_AWS_SECRET_KEY || process.env.AWS_SECRET_KEY;
+const region = process.env.AWS_REGION_IMAGEBUCKET || process.env.AWS_REGION || process.env.APP_AWS_REGION || "us-east-1";
+
+if (!bucketEnv || !accessKeyId || !secretAccessKey) {
+  throw new Error(
+    "Missing required AWS image bucket env vars: AWS_S3_BUCKET, AWS_BUCKET_ACCESS_KEY, AWS_SECRET_KEY"
+  );
+}
+
+const [BUCKET, ...PREFIX_PARTS] = bucketEnv.split("/");
 const PREFIX = PREFIX_PARTS.length ? PREFIX_PARTS.join("/") + "/" : "";
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION_IMAGEBUCKET || process.env.AWS_REGION || "us-east-1",
+  region,
   credentials: {
-    accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY,
-    secretAccessKey: process.env.APP_AWS_SECRET_KEY || process.env.AWS_SECRET_KEY,
+    accessKeyId,
+    secretAccessKey,
   },
 });
 

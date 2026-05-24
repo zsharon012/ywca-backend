@@ -24,10 +24,11 @@ provider:
     FRONTEND_URL: ${ssm:/ywca/${self:provider.stage}/FRONTEND_URL}
     FRONTEND_URL_DEV: ${ssm:/ywca/${self:provider.stage}/FRONTEND_URL_DEV}
     API_URL: ${ssm:/ywca/${self:provider.stage}/API_URL}
-    AWS_BUCKET_ACCESS_KEY: ${ssm:/ywca/${self:provider.stage}/AWS_BUCKET_ACCESS_KEY}
-    APP_AWS_REGION: ${ssm:/ywca/${self:provider.stage}/AWS_REGION}
-    APP_AWS_SECRET_KEY: ${ssm:/ywca/${self:provider.stage}/AWS_SECRET_KEY}
-    AWS_S3_BUCKET: ${ssm:/ywca/${self:provider.stage}/AWS_S3_BUCKET}
+    AWS_BUCKET_ACCESS_KEY: ${env:AWS_BUCKET_ACCESS_KEY,ssm:/ywca/${self:provider.stage}/AWS_BUCKET_ACCESS_KEY}
+    APP_AWS_REGION: ${env:AWS_REGION,ssm:/ywca/${self:provider.stage}/AWS_REGION}
+    APP_AWS_SECRET_KEY: ${env:AWS_SECRET_KEY,ssm:/ywca/${self:provider.stage}/AWS_SECRET_KEY}
+    AWS_S3_BUCKET: ${env:AWS_S3_BUCKET,ssm:/ywca/${self:provider.stage}/AWS_S3_BUCKET}
+    AWS_REGION_IMAGEBUCKET: ${env:AWS_REGION_IMAGEBUCKET,ssm:/ywca/${self:provider.stage}/AWS_REGION}
     SMTP_USER: ${ssm:/ywca/${self:provider.stage}/SMTP_USER}
     SMTP_PASS: ${ssm:/ywca/${self:provider.stage}/SMTP_PASS}
     SMTP_FROM: ${ssm:/ywca/${self:provider.stage}/SMTP_FROM}
