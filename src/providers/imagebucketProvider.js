@@ -13,10 +13,10 @@ const [BUCKET, ...PREFIX_PARTS] = process.env.AWS_S3_BUCKET.split("/");
 const PREFIX = PREFIX_PARTS.length ? PREFIX_PARTS.join("/") + "/" : "";
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION_IMAGEBUCKET || "us-east-1",
+  region: process.env.AWS_REGION_IMAGEBUCKET || process.env.AWS_REGION || "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_BUCKET_ACCESS_KEY,
-    secretAccessKey: process.env.APP_AWS_SECRET_KEY,
+    secretAccessKey: process.env.APP_AWS_SECRET_KEY || process.env.AWS_SECRET_KEY,
   },
 });
 
