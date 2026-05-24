@@ -26,6 +26,7 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       process.env.FRONTEND_URL_DEV,
+      process.env.SWAGGER_PAGE,
     ];
 
     if (allowedOrigins.includes(origin) || !origin) {

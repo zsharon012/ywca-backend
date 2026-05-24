@@ -3,7 +3,7 @@ import { pgPool } from '../config/database.js';
 export default {
   async getRecipients() {
     const { rows } = await pgPool.query(`
-      SELECT
+      SELECT recipientid,
              recipientfirstname || ' ' || recipientlastname AS name,
              recipientemail AS email,
              recipientphonenumber AS phone

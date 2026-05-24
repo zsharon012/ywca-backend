@@ -16,7 +16,7 @@ const authMiddleware = async (req, res, next) => {
     const decodedToken = await admin.auth().verifyIdToken(token);
 
     // Ensure user exists in database (upsert will create if not exists)
-    await userRepository.upsertUser({
+    const dbUser = await userRepository.upsertUser({
       uid: decodedToken.uid,
       username: decodedToken.email?.split('@')[0] || decodedToken.uid.substring(0, 20),
       email: decodedToken.email || '',
@@ -24,7 +24,12 @@ const authMiddleware = async (req, res, next) => {
       lastname: decodedToken.name?.split(' ').slice(1).join(' ') || '',
     });
 
-    req.user = decodedToken;
+    // Merge database user info with Firebase token info
+    req.user = {
+      ...decodedToken,
+      id: dbUser?.id,  // Add database ID
+      username: dbUser?.username,
+    };
     next();
   } catch (error) {
     console.error('Firebase Auth middleware error:', error);

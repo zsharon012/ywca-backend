@@ -15,3 +15,14 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE KEY idx_username     (username),
   UNIQUE KEY idx_email        (email)
 );
+
+CREATE TABLE IF NOT EXISTS signuplinks (
+  linkid        INT AUTO_INCREMENT PRIMARY KEY,
+  signuptoken   VARCHAR(255) NOT NULL UNIQUE,
+  expirydate    DATETIME     NOT NULL,
+  createdby     INT          NOT NULL,
+  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_signuplinks_user
+    FOREIGN KEY (createdby) REFERENCES users(id) ON DELETE CASCADE
+);

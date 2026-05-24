@@ -79,15 +79,15 @@ CREATE TABLE users (
 --         FOREIGN KEY (mailobjectid) REFERENCES mailobject(mailobjectid) ON DELETE CASCADE
 -- );
 
--- -- Signup Links Table
--- CREATE TABLE signuplinks (
---     linkid SERIAL PRIMARY KEY,
---     signuptoken VARCHAR(255) UNIQUE NOT NULL,
---     expirydate TIMESTAMP NOT NULL,
---     createdby INTEGER NOT NULL,
---     CONSTRAINT fk_signuplinks_user
---         FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
--- );
+-- Signup Links Table
+CREATE TABLE signuplinks (
+    linkid SERIAL PRIMARY KEY,
+    signuptoken VARCHAR(255) UNIQUE NOT NULL,
+    expirydate TIMESTAMP NOT NULL,
+    createdby INTEGER NOT NULL,
+    CONSTRAINT fk_signuplinks_user
+        FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
+);
 
 -- -- Image Bucket Table
 -- CREATE TABLE imagebucket (

@@ -1,14 +1,29 @@
 import admin from '../config/firebase.js';
 import userRepository from '../repositories/userRepository.js';
+import signupLinksProvider from '../providers/signupLinksProvider.js';
 
 const authController = {
   async signup(req, res) {
     try {
-      const { email, password, username, firstname, lastname } = req.body;
+      const { email, password, username, firstname, lastname, signupToken } = req.body;
 
       if (!email || !password || !username) {
         return res.status(400).json({
           error: 'Email, password, and username are required',
+        });
+      }
+
+      if (!signupToken) {
+        return res.status(400).json({
+          error: 'Signup token is required',
+        });
+      }
+
+      // Validate the signup token
+      const validation = await signupLinksProvider.validateSignupToken(signupToken);
+      if (!validation.valid) {
+        return res.status(400).json({
+          error: validation.message || 'Invalid or expired signup token',
         });
       }
 
