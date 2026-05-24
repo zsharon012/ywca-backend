@@ -26,8 +26,9 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       process.env.FRONTEND_URL_DEV,
-      process.env.SWAGGER_PAGE,
-    ];
+      process.env.FRONTEND_URL_PROD,
+      'https://ywca-disc.web.app',
+    ].filter(Boolean);
 
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
