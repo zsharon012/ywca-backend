@@ -21,11 +21,6 @@ import uploadRoutes from './routes/imagebucketRoutes.js';
 
 const app = express();
 
-app.use((req, res, next) => {
-  console.log('HIT:', req.method, req.path);
-  next();
-});
-
 const corsOptions = {
   origin: 'https://ywca-disc.web.app',
   credentials: true,
@@ -34,9 +29,10 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://ywca-disc.web.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
+  console.log('HIT:', req.method, req.path);
   next();
 });
 
