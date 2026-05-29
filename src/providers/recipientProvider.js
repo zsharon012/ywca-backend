@@ -1,4 +1,5 @@
 import { pgPool } from '../config/database.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   async getRecipients() {
@@ -97,16 +98,59 @@ export default {
       throw new Error('No contacts provided');
     }
 
-    // clear existing recipients first
+    // 1. Collect all unique group names across all contacts
+    const allGroupNames = [
+      ...new Set(
+        contacts.flatMap(c => [
+          ...(c.groupNames || []),
+        ]).filter(Boolean)
+      )
+    ];
+
+    // 2. Resolve group names → IDs, creating groups that don't exist yet
+    const groupNameToId = {};
+    for (const name of allGroupNames) {
+      // Check if group already exists
+      const { rows: existing } = await pgPool.query(
+        `SELECT contactgroupid FROM contactlists WHERE name = $1`,
+        [name]
+      );
+
+      if (existing.length > 0) {
+        groupNameToId[name] = existing[0].contactgroupid;
+      } else {
+        // Create it with required created_at
+        const { rows: created } = await pgPool.query(
+          `INSERT INTO contactlists (name, created_at) VALUES ($1, NOW()) RETURNING contactgroupid`,
+          [name]
+        );
+        groupNameToId[name] = created[0].contactgroupid;
+      }
+    }
+
+    // 3. Merge groupNames → groupIds on each contact
+    const resolvedContacts = contacts.map(c => ({
+      ...c,
+      groupIds: [
+        ...new Set([
+          ...(c.groupIds || []),
+          ...(c.groupNames || []).map(n => groupNameToId[n]).filter(Boolean),
+        ])
+      ],
+    }));
+
+    // clear existing recipients and group assignments first
+    await pgPool.query('DELETE FROM contactlists_users');
     await pgPool.query('DELETE FROM recipients');
 
     let insertedCount = 0;
 
-    for (const contact of contacts) {
-      const { name, email, phone } = contact;
+    for (const contact of resolvedContacts) {
+      const { name, email, phone, groupIds } = contact;
       const nameParts = name.split(' ');
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
+      const recipientId = uuidv4();
 
       const sql = `
         INSERT INTO recipients (recipientid, recipientfirstname, recipientlastname, recipientemail, recipientphonenumber)
@@ -115,9 +159,21 @@ export default {
       `;
 
       try {
-        const { rows } = await pgPool.query(sql, [uuidv4(), firstName, lastName, email, phone]);
+        const { rows } = await pgPool.query(sql, [recipientId, firstName, lastName, email, phone]);
         if (rows.length > 0) {
           insertedCount++;
+
+          // Assign to groups if any
+          if (groupIds && groupIds.length > 0) {
+            for (const groupId of groupIds) {
+              await pgPool.query(
+                `INSERT INTO contactlists_users (contactgroupid, recipientid)
+                 VALUES ($1, $2)
+                 ON CONFLICT DO NOTHING`,
+                [groupId, recipientId]
+              );
+            }
+          }
         }
       } catch (error) {
         console.error(`Error inserting contact ${email}:`, error);
