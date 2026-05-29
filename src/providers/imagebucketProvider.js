@@ -22,13 +22,13 @@ if (!bucketEnv) {
 
 if (!accessKeyId) {
   throw new Error(
-    "Missing required AWS image bucket env vars: AWS_BUCKET_ACCESS_KEY and/or AWS_SECRET_KEY"
+    "Missing required AWS image bucket env vars: AWS_BUCKET_ACCESS_KEY"
   );
 }
 
 if (!secretAccessKey) {
   throw new Error(
-    "Missing required AWS image bucket env vars: APP_AWS_SECRET_KEY and/or AWS_SECRET_KEY"
+    "Missing required AWS image bucket env vars: AWS_SECRET_KEY"
   );
 }
 
