@@ -21,33 +21,25 @@ import uploadRoutes from './routes/imagebucketRoutes.js';
 
 const app = express();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  process.env.FRONTEND_URL_DEV,
-  process.env.FRONTEND_URL_PROD,
-  'https://ywca-disc.web.app',
-].filter(Boolean);
+app.use((req, res, next) => {
+  console.log('HIT:', req.method, req.path);
+  next();
+});
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`Not allowed by CORS: ${origin}`));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  maxAge: 86400,
-};
-
-app.use(cors({
   origin: 'https://ywca-disc.web.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://ywca-disc.web.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use(cookieParser());
 app.use(express.json());
