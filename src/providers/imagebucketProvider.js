@@ -14,9 +14,21 @@ const accessKeyId = process.env.AWS_BUCKET_ACCESS_KEY;
 const secretAccessKey = process.env.APP_AWS_SECRET_KEY || process.env.AWS_SECRET_KEY;
 const region = process.env.AWS_REGION_IMAGEBUCKET || process.env.AWS_REGION || process.env.APP_AWS_REGION || "us-east-1";
 
-if (!bucketEnv || !accessKeyId || !secretAccessKey) {
+if (!bucketEnv) {
   throw new Error(
-    "Missing required AWS image bucket env vars: AWS_S3_BUCKET, AWS_BUCKET_ACCESS_KEY, AWS_SECRET_KEY"
+    "Missing required AWS image bucket env vars: AWS_S3_BUCKET"
+  );
+}
+
+if (!accessKeyId) {
+  throw new Error(
+    "Missing required AWS image bucket env vars: AWS_BUCKET_ACCESS_KEY and/or AWS_SECRET_KEY"
+  );
+}
+
+if (!secretAccessKey) {
+  throw new Error(
+    "Missing required AWS image bucket env vars: APP_AWS_SECRET_KEY and/or AWS_SECRET_KEY"
   );
 }
 
