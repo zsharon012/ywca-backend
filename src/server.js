@@ -42,8 +42,12 @@ const corsOptions = {
   maxAge: 86400,
 };
 
-app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+app.use(cors({
+  origin: 'https://ywca-disc.web.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use(cookieParser());
 app.use(express.json());
