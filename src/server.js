@@ -176,12 +176,6 @@ app.use((err, req, res, next) => {
     status: err.status || 500,
   });
 
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
-
   res.status(err.status || 500).json({
     error:
       process.env.NODE_ENV === 'production'
