@@ -36,37 +36,55 @@ const mailobjectController = {
     }
   },
 
-  async createMailObject(req, res) {
-    try {
-      const { templateid, contactgroupid } = req.body;
+ async createMailObject(req, res) {
+  try {
+    const { templateid, contactgroupid, recipientid } = req.body;
 
-      if (!templateid || !contactgroupid) {
-        return res.status(400).json({
-          error: 'templateid and contactgroupid are required'
-        });
-      }
-
-      const mailObject = await mailobjectProvider.createMailObject(templateid, contactgroupid);
-
-      if (!mailObject) {
-        return res.status(500).json({
-          error: 'Failed to create mail object'
-        });
-      }
-
-      res.status(201).json({
-        message: 'Mail object created successfully',
-        data: mailObject
+    // Validate required fields
+    if (!templateid) {
+      return res.status(400).json({
+        error: 'templateid is required'
       });
-    } catch (error) {
-      console.error('Create mail object error:', error);
-      if (error.code === '23503') {
-        return res.status(400).json({ error: 'Invalid templateid or contactgroupid' });
-      }
-      res.status(500).json({ error: 'Failed to create mail object' });
     }
-  },
 
+    if (!contactgroupid && !recipientid) {
+      return res.status(400).json({
+        error: 'contactgroupid or recipientid is required'
+      });
+    }
+
+    // Create mail object
+    const mailObject = await mailobjectProvider.createMailObject(
+      templateid,
+      contactgroupid ?? null,
+      recipientid ?? null
+    );
+
+    if (!mailObject) {
+      return res.status(500).json({
+        error: 'Failed to create mail object'
+      });
+    }
+
+    res.status(201).json({
+      message: 'Mail object created successfully',
+      data: mailObject
+    });
+
+  } catch (error) {
+    console.error('Create mail object error:', error);
+
+    if (error.code === '23503') {
+      return res.status(400).json({
+        error: 'Invalid templateid, contactgroupid, or recipientid'
+      });
+    }
+
+    res.status(500).json({
+      error: 'Failed to create mail object'
+    });
+  }
+},
   async deleteMailObject(req, res) {
     try {
       const { mailobjectid } = req.params;

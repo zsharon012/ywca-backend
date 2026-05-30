@@ -59,15 +59,37 @@ CREATE TABLE users (
 --         FOREIGN KEY (recipientid) REFERENCES recipients(recipientid) ON DELETE CASCADE
 -- );
 
--- -- MailObject Table
 -- CREATE TABLE mailobject (
---     mailobjectid UUID PRIMARY KEY,
+--     mailobjectid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
 --     templateid UUID NOT NULL,
---     contactgroupid UUID NOT NULL,
+
+--     contactgroupid UUID NULL,
+--     recipientid UUID NULL,
+
+--     createdat TIMESTAMP NOT NULL DEFAULT NOW(),
+
 --     CONSTRAINT fk_mailobject_template
---         FOREIGN KEY (templateid) REFERENCES templates(templateid) ON DELETE CASCADE,
+--         FOREIGN KEY (templateid)
+--         REFERENCES templates(templateid)
+--         ON DELETE CASCADE,
+
 --     CONSTRAINT fk_mailobject_contactlist
---         FOREIGN KEY (contactgroupid) REFERENCES contactlists(contactgroupid) ON DELETE CASCADE
+--         FOREIGN KEY (contactgroupid)
+--         REFERENCES contactlists(contactgroupid)
+--         ON DELETE CASCADE,
+
+--     CONSTRAINT fk_mailobject_recipient
+--         FOREIGN KEY (recipientid)
+--         REFERENCES recipients(recipientid)
+--         ON DELETE CASCADE,
+
+--     CONSTRAINT mailobject_target_check
+--         CHECK (
+--             (contactgroupid IS NOT NULL AND recipientid IS NULL)
+--             OR
+--             (contactgroupid IS NULL AND recipientid IS NOT NULL)
+--         )
 -- );
 
 -- -- Scheduled Sends Table
