@@ -10,6 +10,22 @@ provider:
   memorySize: 512
   timeout: 29              # API Gateway max is 30s; keep Lambda under it
 
+  httpApi:
+    cors:
+      allowedOrigins:
+        - https://ywca-disc.web.app
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        - PATCH
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowCredentials: true
+
   # Environment variables — pulled from SSM Parameter Store at deploy time
   # Store these first with: aws ssm put-parameter --name "/ywca/dev/DB_HOST" --value "..." --type SecureString
   environment:
