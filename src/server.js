@@ -12,7 +12,7 @@ import schedulesendsRoutes from './routes/schedulesendsRoutes.js';
 import signupLinksRoutes from './routes/signupLinksRoutes.js';
 import templatesRoutes from './routes/templatesRoutes.js';
 import sendmailRoutes from './routes/sendmailRoutes.js';
-import { processScheduledSends } from './scripts/processScheduledSends.js';
+import { processScheduledSends } from './scripts/scheduledsender.js';
 // import authMiddleware from './middleware/authMiddleware.js';
 // import recipientRepository from './repositories/recipientRepository.js';
 import swaggerOptions from './config/swaggerConfig.js';
