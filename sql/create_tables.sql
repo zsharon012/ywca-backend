@@ -1,118 +1,138 @@
--- Supabase / PostgreSQL
--- Run this in the Supabase SQL Editor (supabase.com → project → SQL Editor)
+-- -- public.contactlists definition
 
--- Users Table
-CREATE TABLE users (
-  id           SERIAL PRIMARY KEY,
-  firebase_uid VARCHAR(128) NOT NULL UNIQUE,
-  username     VARCHAR(50)  NOT NULL UNIQUE,
-  email        VARCHAR(255) NOT NULL UNIQUE,
-  firstname    VARCHAR(100) DEFAULT NULL,
-  lastname     VARCHAR(100) DEFAULT NULL,
-  created_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  updated_at   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
-);
+-- -- Drop table
 
--- -- Templates Table - FOR DOCUMENTATION
--- CREATE TABLE templates (
---     templateid UUID PRIMARY KEY,
---     subject TEXT NOT NULL,
---     body TEXT NOT NULL,
---     createdon TIMESTAMP NOT NULL,
---     createdby INTEGER NOT NULL,
---     name TEXT NOT NULL,
---     customname BOOLEAN DEFAULT FALSE,
---     editedon TIMESTAMP,
---     CONSTRAINT fk_templates_user
---         FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
+-- -- DROP TABLE public.contactlists;
+
+-- CREATE TABLE public.contactlists (
+-- 	contactgroupid uuid DEFAULT gen_random_uuid() NOT NULL,
+-- 	"name" text NOT NULL,
+-- 	description text NULL,
+-- 	created_at timestamp NOT NULL,
+-- 	updated_at timestamp NULL,
+-- 	user_id int4 NULL,
+-- 	CONSTRAINT contactlists_pkey PRIMARY KEY (contactgroupid)
 -- );
 
--- -- Contact Lists Table
--- CREATE TABLE contactlists (
---     contactgroupid UUID PRIMARY KEY,
---     user_id INTEGER NOT NULL,
---     name TEXT NOT NULL,
---     description TEXT,
---     created_at TIMESTAMP NOT NULL,
---     updated_at TIMESTAMP,
---     CONSTRAINT fk_contactlists_user
---         FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE
+
+-- -- public.recipients definition
+
+-- -- Drop table
+
+-- -- DROP TABLE public.recipients;
+
+-- CREATE TABLE public.recipients (
+-- 	recipientid uuid DEFAULT gen_random_uuid() NOT NULL,
+-- 	recipientfirstname text NOT NULL,
+-- 	recipientlastname text NOT NULL,
+-- 	recipientphonenumber text NULL,
+-- 	recipientemail text NOT NULL,
+-- 	CONSTRAINT recipients_pkey PRIMARY KEY (recipientid)
 -- );
 
--- -- Recipients Table
--- CREATE TABLE recipients (
---     recipientid UUID PRIMARY KEY,
---     recipientfirstname TEXT NOT NULL,
---     recipientlastname TEXT NOT NULL,
---     recipientphonenumber TEXT,
---     recipientemail TEXT NOT NULL
+
+-- -- public.users definition
+
+-- -- Drop table
+
+-- -- DROP TABLE public.users;
+
+-- CREATE TABLE public.users (
+-- 	id serial4 NOT NULL,
+-- 	firebase_uid varchar(128) NOT NULL,
+-- 	username varchar(50) NOT NULL,
+-- 	email varchar(255) NOT NULL,
+-- 	firstname varchar(100) DEFAULT NULL::character varying NULL,
+-- 	lastname varchar(100) DEFAULT NULL::character varying NULL,
+-- 	created_at timestamptz DEFAULT now() NOT NULL,
+-- 	updated_at timestamptz DEFAULT now() NOT NULL,
+-- 	CONSTRAINT users_email_key UNIQUE (email),
+-- 	CONSTRAINT users_firebase_uid_key UNIQUE (firebase_uid),
+-- 	CONSTRAINT users_pkey PRIMARY KEY (id),
+-- 	CONSTRAINT users_username_key UNIQUE (username)
 -- );
 
--- -- Join Table: ContactLists_Users
--- CREATE TABLE contactlists_users (
---     contactgroupid UUID NOT NULL,
---     recipientid UUID NOT NULL,
---     PRIMARY KEY (contactgroupid, recipientid),
---     CONSTRAINT fk_clu_contactlist
---         FOREIGN KEY (contactgroupid) REFERENCES contactlists(contactgroupid) ON DELETE CASCADE,
---     CONSTRAINT fk_clu_recipient
---         FOREIGN KEY (recipientid) REFERENCES recipients(recipientid) ON DELETE CASCADE
+
+-- -- public.contactlists_users definition
+
+-- -- Drop table
+
+-- -- DROP TABLE public.contactlists_users;
+
+-- CREATE TABLE public.contactlists_users (
+-- 	contactgroupid uuid NOT NULL,
+-- 	recipientid uuid NOT NULL,
+-- 	CONSTRAINT contactlists_users_pkey PRIMARY KEY (contactgroupid, recipientid),
+-- 	CONSTRAINT fk_clu_contactlist FOREIGN KEY (contactgroupid) REFERENCES public.contactlists(contactgroupid) ON DELETE CASCADE,
+-- 	CONSTRAINT fk_clu_recipient FOREIGN KEY (recipientid) REFERENCES public.recipients(recipientid) ON DELETE CASCADE
 -- );
 
--- CREATE TABLE mailobject (
---     mailobjectid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
---     templateid UUID NOT NULL,
+-- -- public.signuplinks definition
 
---     contactgroupid UUID NULL,
---     recipientid UUID NULL,
+-- -- Drop table
 
---     createdat TIMESTAMP NOT NULL DEFAULT NOW(),
+-- -- DROP TABLE public.signuplinks;
 
---     CONSTRAINT fk_mailobject_template
---         FOREIGN KEY (templateid)
---         REFERENCES templates(templateid)
---         ON DELETE CASCADE,
-
---     CONSTRAINT fk_mailobject_contactlist
---         FOREIGN KEY (contactgroupid)
---         REFERENCES contactlists(contactgroupid)
---         ON DELETE CASCADE,
-
---     CONSTRAINT fk_mailobject_recipient
---         FOREIGN KEY (recipientid)
---         REFERENCES recipients(recipientid)
---         ON DELETE CASCADE,
-
---     CONSTRAINT mailobject_target_check
---         CHECK (
---             (contactgroupid IS NOT NULL AND recipientid IS NULL)
---             OR
---             (contactgroupid IS NULL AND recipientid IS NOT NULL)
---         )
+-- CREATE TABLE public.signuplinks (
+-- 	linkid serial4 NOT NULL,
+-- 	signuptoken varchar(255) NOT NULL,
+-- 	expirydate timestamp NOT NULL,
+-- 	createdby int4 NOT NULL,
+-- 	CONSTRAINT signuplinks_pkey PRIMARY KEY (linkid),
+-- 	CONSTRAINT signuplinks_signuptoken_key UNIQUE (signuptoken),
+-- 	CONSTRAINT fk_signuplinks_user FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
 -- );
 
--- -- Scheduled Sends Table
--- CREATE TABLE scheduledsends (
---     mailobjectid UUID PRIMARY KEY,
---     sendate TIMESTAMP NOT NULL,
---     sent BOOLEAN DEFAULT FALSE,
---     CONSTRAINT fk_scheduled_mailobject
---         FOREIGN KEY (mailobjectid) REFERENCES mailobject(mailobjectid) ON DELETE CASCADE
+
+-- -- public.templates definition
+
+-- -- Drop table
+
+-- -- DROP TABLE public.templates;
+
+-- CREATE TABLE public.templates (
+-- 	templateid uuid NOT NULL,
+-- 	subject text NOT NULL,
+-- 	body text NOT NULL,
+-- 	createdon timestamp NOT NULL,
+-- 	createdby int4 NULL,
+-- 	"name" text NOT NULL,
+-- 	customname bool DEFAULT false NULL,
+-- 	editedon timestamp NULL,
+-- 	CONSTRAINT templates_pkey PRIMARY KEY (templateid),
+-- 	CONSTRAINT fk_templates_user FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
 -- );
 
--- Signup Links Table
-CREATE TABLE signuplinks (
-    linkid SERIAL PRIMARY KEY,
-    signuptoken VARCHAR(255) UNIQUE NOT NULL,
-    expirydate TIMESTAMP NOT NULL,
-    createdby INTEGER NOT NULL,
-    CONSTRAINT fk_signuplinks_user
-        FOREIGN KEY (createdby) REFERENCES public.users(id) ON DELETE CASCADE
-);
 
--- -- Image Bucket Table
--- CREATE TABLE imagebucket (
---     imageid UUID PRIMARY KEY,
---     imageurl TEXT NOT NULL
+-- -- public.mailobject definition
+
+-- -- Drop table
+
+-- -- DROP TABLE public.mailobject;
+
+-- CREATE TABLE public.mailobject (
+-- 	mailobjectid uuid NOT NULL,
+-- 	templateid uuid NOT NULL,
+-- 	contactgroupid uuid NOT NULL,
+-- 	recipientid uuid NULL,
+-- 	CONSTRAINT mailobject_pkey PRIMARY KEY (mailobjectid),
+-- 	CONSTRAINT mailobject_target_check CHECK ((((contactgroupid IS NOT NULL) AND (recipientid IS NULL)) OR ((contactgroupid IS NULL) AND (recipientid IS NOT NULL)))),
+-- 	CONSTRAINT fk_mailobject_contactlist FOREIGN KEY (contactgroupid) REFERENCES public.contactlists(contactgroupid) ON DELETE CASCADE,
+-- 	CONSTRAINT fk_mailobject_template FOREIGN KEY (templateid) REFERENCES public.templates(templateid) ON DELETE CASCADE
+-- );
+
+
+-- -- public.scheduledsends definition
+
+-- -- Drop table
+
+-- -- DROP TABLE public.scheduledsends;
+
+-- CREATE TABLE public.scheduledsends (
+-- 	mailobjectid uuid NOT NULL,
+-- 	sendate timestamp NOT NULL,
+-- 	sent bool DEFAULT false NULL,
+-- 	CONSTRAINT scheduledsends_pkey PRIMARY KEY (mailobjectid),
+-- 	CONSTRAINT fk_scheduled_mailobject FOREIGN KEY (mailobjectid) REFERENCES public.mailobject(mailobjectid) ON DELETE CASCADE
 -- );
