@@ -176,7 +176,7 @@ app.use((err, req, res, next) => {
 
 if (process.env.NODE_ENV !== 'production') {
   console.log('CORS Configuration:', {
-    allowedOrigins: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_DEV],
+    allowedOrigins: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_DEV, process.env.API_URL],
     credentials: true,
   });
 }
